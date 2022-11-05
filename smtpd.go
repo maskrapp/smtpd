@@ -21,6 +21,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/armon/go-proxyproto"
 )
 
 var (
@@ -198,14 +200,15 @@ func (srv *Server) Serve(ln net.Listener) error {
 		}
 
 		conn, err := ln.Accept()
+
 		if err != nil {
 			if netErr, ok := err.(net.Error); ok && netErr.Temporary() {
 				continue
 			}
 			return err
 		}
-
-		session := srv.newSession(conn)
+		ppConn := proxyproto.NewConn(conn, time.Second*5)
+		session := srv.newSession(ppConn)
 		atomic.AddInt32(&srv.openSessions, 1)
 		go session.serve()
 	}
