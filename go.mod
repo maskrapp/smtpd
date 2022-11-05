@@ -1,5 +1,5 @@
-module github.com/mhale/smtpd
+module github.com/thohui/smtpd
 
-go 1.14
+go 1.19
 
 require github.com/armon/go-proxyproto v0.0.0-20210323213023-7e956b284f0a // indirect
