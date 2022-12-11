@@ -35,6 +35,7 @@ var (
 
 type HandlerData struct {
 	RemoteAddr net.Addr
+	RemoteHost string
 	Helo       string
 	From       string
 	To         []string
@@ -486,6 +487,7 @@ loop:
 			if s.srv.Handler != nil {
 				data := HandlerData{
 					RemoteAddr: s.conn.RemoteAddr(),
+					RemoteHost: s.remoteHost,
 					Helo:       s.remoteName,
 					From:       from,
 					To:         to,
