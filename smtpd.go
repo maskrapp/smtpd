@@ -33,8 +33,16 @@ var (
 	mailSizeRE = regexp.MustCompile(`[Ss][Ii][Zz][Ee]=(\d+)`)
 )
 
+type HandlerData struct {
+	RemoteAddr net.Addr
+	Helo       string
+	From       string
+	To         []string
+	Data       []byte
+}
+
 // Handler function called upon successful receipt of an email.
-type Handler func(remoteAddr net.Addr, from string, to []string, data []byte) error
+type Handler func(data HandlerData) error
 
 // HandlerRcpt function called on RCPT. Return accept status.
 type HandlerRcpt func(remoteAddr net.Addr, from string, to string) bool
@@ -476,7 +484,14 @@ loop:
 
 			// Pass mail on to handler.
 			if s.srv.Handler != nil {
-				err := s.srv.Handler(s.conn.RemoteAddr(), from, to, buffer.Bytes())
+				data := HandlerData{
+					RemoteAddr: s.conn.RemoteAddr(),
+					Helo:       s.remoteName,
+					From:       from,
+					To:         to,
+					Data:       buffer.Bytes(),
+				}
+				err := s.srv.Handler(data)
 				if err != nil {
 					s.writef("451 4.3.5 Unable to process mail")
 					break
